@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Enhance your images with adjustable quality and resolution using this online tool.">
+  <title>Image Enhancer Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f3f4f6, #e5e7eb);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #111827;
+    }
+    .control-group {
+      margin: 20px 0;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+    }
+    input[type="file"], input[type="range"] {
+      width: 100%;
+    }
+    .preview {
+      text-align: center;
+      margin-top: 30px;
+    }
+    canvas {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #059669;
+    }
+    a#downloadLink {
+      display: inline-block;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image Enhancer Tool</h1>
+    <div class="control-group">
+      <label for="imageInput">Upload Image</label>
+      <input type="file" id="imageInput" accept="image/*">
+    </div><div class="control-group">
+  <label for="quality">JPEG Quality (<span id="qualityVal">80</span>%)</label>
+  <input type="range" id="quality" min="10" max="100" value="80">
+</div>
+
+<div class="control-group">
+  <label for="scale">Resolution Scale (<span id="scaleVal">1</span>x)</label>
+  <input type="range" id="scale" min="0.5" max="2" step="0.1" value="1">
+</div>
+
+<button onclick="enhanceImage()">Enhance Image</button>
+
+<div class="preview">
+  <canvas id="canvas"></canvas>
+  <a id="downloadLink" style="display:none">Download Enhanced Image</a>
+</div>
+
+  </div>  <script>
+    const imageInput = document.getElementById('imageInput');
+    const qualitySlider = document.getElementById('quality');
+    const qualityVal = document.getElementById('qualityVal');
+    const scaleSlider = document.getElementById('scale');
+    const scaleVal = document.getElementById('scaleVal');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadLink = document.getElementById('downloadLink');
+
+    qualitySlider.oninput = () => qualityVal.innerText = qualitySlider.value;
+    scaleSlider.oninput = () => scaleVal.innerText = scaleSlider.value;
+
+    function enhanceImage() {
+      const file = imageInput.files[0];
+      if (!file) return alert("Please select an image.");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const scale = parseFloat(scaleSlider.value);
+          const width = img.width * scale;
+          const height = img.height * scale;
+          canvas.width = width;
+          canvas.height = height;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const quality = parseInt(qualitySlider.value) / 100;
+          canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "enhanced-image.jpg";
+            downloadLink.textContent = "Download Enhanced Image";
+            downloadLink.style.display = "inline-block";
+          }, 'image/jpeg', quality);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script></body>
+</html>
