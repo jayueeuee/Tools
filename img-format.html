@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Convert images to different formats like JPG, PNG, and WebP online for free.">
+  <title>Image Format Converter Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f9fafb, #f3f4f6);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      max-width: 700px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #1f2937;
+    }
+    .form-group {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    input[type="file"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #6366f1;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #4f46e5;
+    }
+    canvas {
+      display: none;
+    }
+    a#downloadLink {
+      display: inline-block;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image Format Converter</h1>
+    <div class="form-group">
+      <label for="imageInput">Upload Image</label>
+      <input type="file" id="imageInput" accept="image/*">
+    </div><div class="form-group">
+  <label for="formatSelect">Choose Output Format</label>
+  <select id="formatSelect">
+    <option value="image/jpeg">JPG</option>
+    <option value="image/png">PNG</option>
+    <option value="image/webp">WebP</option>
+    <option value="image/bmp">BMP</option>
+  </select>
+</div>
+
+<button onclick="convertImage()">Convert Image</button>
+
+<canvas id="canvas"></canvas>
+<div>
+  <a id="downloadLink" style="display:none">Download Converted Image</a>
+</div>
+
+  </div>  <script>
+    const imageInput = document.getElementById('imageInput');
+    const formatSelect = document.getElementById('formatSelect');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadLink = document.getElementById('downloadLink');
+
+    function convertImage() {
+      const file = imageInput.files[0];
+      if (!file) return alert("Please select an image.");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+
+          const selectedFormat = formatSelect.value;
+          canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            let ext = selectedFormat.split('/')[1];
+            downloadLink.href = url;
+            downloadLink.download = `converted-image.${ext}`;
+            downloadLink.textContent = `Download ${ext.toUpperCase()} Image`;
+            downloadLink.style.display = "inline-block";
+          }, selectedFormat);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script></body>
+</html>
