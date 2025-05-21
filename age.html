@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Modern Responsive Age Calculator Tool">
+  <title>Age Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .card h2 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 0.6rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border 0.3s ease;
+    }
+
+    input[type="date"].error {
+      border-color: #f44336;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #43a047;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .error-message {
+      color: #f44336;
+      margin-top: 0.5rem;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Age Calculator</h2>
+    <div class="form-group">
+      <label for="dob">Select Your Date of Birth:</label>
+      <input type="date" id="dob" />
+      <div class="error-message" id="errorMsg">Please select a valid date of birth!</div>
+    </div>
+    <button onclick="calculateAge()">Calculate Age</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateAge() {
+      const dobInput = document.getElementById('dob');
+      const result = document.getElementById('result');
+      const errorMsg = document.getElementById('errorMsg');
+      const dob = dobInput.value;
+
+      if (!dob) {
+        dobInput.classList.add('error');
+        errorMsg.style.display = 'block';
+        result.innerText = '';
+        return;
+      }
+
+      dobInput.classList.remove('error');
+      errorMsg.style.display = 'none';
+
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      result.innerText = `You are ${age} year(s) old.`;
+    }
+  </script>
+
+</body>
+</html>
