@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate QR codes instantly from links and URLs. Fast, responsive, and optimized for SEO. Built by ToolsByJay." />
+  <meta name="keywords" content="QR Code Generator, ToolsByJay, QR from link, QR from URL, free QR code maker">
+  <meta name="author" content="ToolsByJay">
+  <title>QR Code Generator | ToolsByJay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: #f9fafb;
+      color: #111827;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+    }
+    .generator {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      max-width: 500px;
+      width: 100%;
+    }
+    .generator input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .generator button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .generator button:hover {
+      background-color: #1d4ed8;
+    }
+    .qr-code {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .qr-code img {
+      margin-bottom: 1rem;
+    }
+    .download-link {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #10b981;
+      color: white;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .adsense-slot {
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 728px;
+      min-height: 90px;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      border-radius: 0.5rem;
+    }
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>QR Code Generator</h1>
+    <p>Generate QR codes from any link or URL. Simple, fast, and free by ToolsByJay.</p>
+  </header>
+
+  <div class="generator">
+    <input type="url" id="urlInput" placeholder="Enter URL or Link here" required />
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div class="qr-code" id="qrCodeContainer"></div>
+  </div>
+
+  <div class="adsense-slot">
+    <!-- Google AdSense Ad Code Goes Here -->
+    <!-- Replace 'ca-pub-XXXXXXX' with your actual Ad Unit ID -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 ToolsByJay. All rights reserved.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    let qr;
+
+    function generateQRCode() {
+      const url = document.getElementById("urlInput").value;
+      const container = document.getElementById("qrCodeContainer");
+
+      if (!url || !isValidURL(url)) {
+        container.innerHTML = '<p style="color:red">Please enter a valid URL</p>';
+        return;
+      }
+
+      qr = new QRious({
+        value: url,
+        size: 250
+      });
+
+      const dataURL = qr.toDataURL();
+
+      container.innerHTML = `
+        <img src="${dataURL}" alt="QR Code">
+        <br>
+        <a href="${dataURL}" download="qr-code.png" class="download-link">Download QR Code</a>
+      `;
+    }
+
+    function isValidURL(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+  </script>
+</body>
+</html>
