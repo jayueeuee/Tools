@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create your own memes easily with our responsive meme generator. Upload, edit, and download memes in seconds." />
+  <meta name="keywords" content="meme generator, online meme creator, make memes, funny memes" />
+  <meta name="author" content="ToolsByJay" />
+  <title>Responsive Meme Generator Tool</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Comic+Neue:wght@700&display=swap" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Comic Neue', cursive;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f4f4f4;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #111;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 1.5rem;
+      max-width: 700px;
+      margin: auto;
+      flex: 1;
+    }
+    .ad-space {
+      margin: 1rem 0;
+      background: #ddd;
+      text-align: center;
+      padding: 0.75rem;
+    }
+    .meme-generator {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type='file'], input[type='text'] {
+      width: 100%;
+      padding: 0.6rem;
+      margin: 0.5rem 0;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+    }
+    canvas {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    button, .download-btn {
+      background: #28a745;
+      color: white;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    button:hover, .download-btn:hover {
+      background: #218838;
+    }
+    .hidden {
+      display: none;
+    }
+    footer {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Meme Generator by ToolsByJay</h1>
+  </header>  <div class="container">
+    <div class="ad-space">
+      <!-- Google AdSense Top Ad Unit -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div><div class="meme-generator">
+  <input type="file" id="imageUpload" accept="image/*">
+  <input type="text" id="topText" placeholder="Top Text" oninput="generateMeme()">
+  <input type="text" id="bottomText" placeholder="Bottom Text" oninput="generateMeme()">
+  <button onclick="generateMeme()">Generate Meme</button>
+  <canvas id="memeCanvas"></canvas>
+  <a id="downloadLink" class="download-btn hidden" download="meme.png">Download Meme</a>
+</div>
+
+<div class="ad-space">
+  <!-- Google AdSense Bottom Ad Unit -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="0987654321"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+
+  </div>  <footer>
+    <p>&copy; 2025 ToolsByJay. All rights reserved.</p>
+  </footer>  <script>
+    let canvas = document.getElementById('memeCanvas');
+    let ctx = canvas.getContext('2d');
+    let image = new Image();
+
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        image.src = event.target.result;
+        image.onload = () => generateMeme();
+      }
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function generateMeme() {
+      if (!image.src) return;
+
+      const topText = document.getElementById('topText').value;
+      const bottomText = document.getElementById('bottomText').value;
+
+      canvas.width = image.width;
+      canvas.height = image.height;
+
+      ctx.drawImage(image, 0, 0);
+
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3;
+      ctx.font = `${Math.floor(canvas.width / 12)}px Comic Neue`;
+
+      ctx.fillText(topText.toUpperCase(), canvas.width / 2, canvas.height * 0.1);
+      ctx.strokeText(topText.toUpperCase(), canvas.width / 2, canvas.height * 0.1);
+
+      ctx.fillText(bottomText.toUpperCase(), canvas.width / 2, canvas.height * 0.95);
+      ctx.strokeText(bottomText.toUpperCase(), canvas.width / 2, canvas.height * 0.95);
+
+      const downloadLink = document.getElementById('downloadLink');
+      downloadLink.href = canvas.toDataURL('image/png');
+      downloadLink.classList.remove('hidden');
+    }
+  </script>  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script></body>
+</html>
