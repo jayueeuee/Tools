@@ -16,6 +16,11 @@
       padding: 0 20px 30px;
       min-height: 100vh;
       color: #1f2937;
+      transition: background 0.4s, color 0.4s;
+    }
+    body.dark {
+      background: #1f2937;
+      color: #f3f4f6;
     }
     header {
       text-align: center;
@@ -51,13 +56,12 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       color: inherit;
       transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease forwards;
+      opacity: 0;
     }
     .tool-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    }
-    .tool-card:active {
-      transform: scale(0.97);
     }
     .tool-card img {
       width: 60px;
@@ -123,10 +127,21 @@
       border: 1px solid #ccc;
       max-width: 400px;
     }
+    #darkToggle {
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: #1f2937;
+    }
     @media (max-width: 500px) {
       h1 { font-size: 32px; }
       .tool-card img { width: 52px; height: 52px; }
       #searchBar { margin-left: 10px; max-width: 240px; }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
   </style>
 </head>
@@ -135,6 +150,7 @@
   <div class="navbar">
     <div id="menu-toggle">&#9776;</div>
     <input id="searchBar" type="text" placeholder="Search tools...">
+    <button id="darkToggle" title="Toggle dark mode">🌓</button>
     <div id="menu">
       <a href="about.html">About Us</a>
       <a href="contact.html">Contact</a>
@@ -147,80 +163,25 @@
   </header>
 
   <main class="tool-grid" id="toolList">
-    <a class="tool-card" href="/Tools/compress.html">
-      <img src="https://img.icons8.com/color/96/compress.png" alt="Image Compressor" />
-      <h2>Image Compressor</h2>
-      <p>Reduce image size without losing quality</p>
-    </a>
-    <a class="tool-card" href="quality.html">
-      <img src="https://img.icons8.com/clouds/100/improve.png" alt="Image Enhancer" />
-      <h2>Image Enhancer</h2>
-      <p>Improve image quality and resolution</p>
-    </a>
-    <a class="tool-card" href="img-format.html">
-      <img src="https://img.icons8.com/clouds/100/synchronize.png" alt="Format Converter" />
-      <h2>Format Converter</h2>
-      <p>Convert images to JPG, PNG, WebP, and more</p>
-    </a>
-    <a class="tool-card" href="age.html">
-      <img src="https://img.icons8.com/color/96/birthday.png" alt="Age Calculator" />
-      <h2>Age Calculator</h2>
-      <p>Find your current age digitally in minutes</p>
-    </a>
-    <a class="tool-card" href="texttoimg.html">
-      <img src="https://img.icons8.com/color/96/crop.png" alt="Image Cropper" />
-      <h2>Image Cropper</h2>
-      <p>Crop your images quickly and easily</p>
-    </a>
-    <a class="tool-card" href="edit.html">
-      <img src="https://img.icons8.com/color/96/edit-image.png" alt="Image Editor" />
-      <h2>Image Editor</h2>
-      <p>Edit, rotate, and apply effects to images</p>
-    </a>
-
-    <!-- New Trending Tools -->
-    <a class="tool-card" href="background.html">
-      <img src="https://img.icons8.com/color/96/magic.png" alt="Background Remover" />
-      <h2>Background Remover</h2>
-      <p>Remove image backgrounds automatically</p>
-    </a>
-   
-    <a class="tool-card" href="meme.html">
-      <img src="https://img.icons8.com/color/96/lol.png" alt="Meme Generator" />
-      <h2>Meme Generator</h2>
-      <p>Create memes with templates and custom text</p>
-    </a>
-   
-   
-   
-    <a class="tool-card" href="sketch.html">
-      <img src="https://img.icons8.com/color/96/sketch.png" alt="Photo to Sketch" />
-      <h2>Photo to Sketch</h2>
-      <p>Convert photos into pencil sketches</p>
-    </a>
-    <a 
-    <a class="tool-card" href="faceswap.html">
-      <img src="https://img.icons8.com/color/96/exchange.png" alt="Face Swap" />
-      <h2>Face Swap</h2>
-      <p>Swap faces in photos for fun or creative use</p>
-    </a>
-
-    <!-- User Requested Tools -->
-    <a class="tool-card" href="qr.html">
-      <img src="https://img.icons8.com/color/96/qr-code.png" alt="QR Code Generator" />
-      <h2>QR Code Generator</h2>
-      <p>Generate QR codes from URLs instantly</p>
-    </a>
-    <a class="tool-card" href="calculator.html">
-      <img src="https://img.icons8.com/color/96/calculator.png" alt="Calculator" />
-      <h2>Calculator</h2>
-      <p>Perform basic and advanced calculations</p>
-    </a>
-    <a class="tool-card" href="random.html">
-      <img src="https://img.icons8.com/color/96/dice.png" alt="Random Number Generator" />
-      <h2>Random Number Generator</h2>
-      <p>Generate random numbers in a range</p>
-    </a>
+    <!-- All Tool Cards -->
+    <a class="tool-card" href="/Tools/compress.html"><img src="https://img.icons8.com/color/96/compress.png"/><h2>Image Compressor</h2><p>Reduce image size without losing quality</p></a>
+    <a class="tool-card" href="quality.html"><img src="https://img.icons8.com/clouds/100/improve.png"/><h2>Image Enhancer</h2><p>Enhance photo quality instantly</p></a>
+    <a class="tool-card" href="img-format.html"><img src="https://img.icons8.com/color/96/convert.png"/><h2>Image Converter</h2><p>Convert between formats like JPG, PNG, etc.</p></a>
+    <a class="tool-card" href="age.html"><img src="https://img.icons8.com/color/96/baby-face.png"/><h2>Age Detection</h2><p>Guess the age from an image</p></a>
+    <a class="tool-card" href="texttoimg.html"><img src="https://img.icons8.com/color/96/crop.png"/><h2>Image Cropper</h2><p>Crop images to desired dimensions</p></a>
+    <a class="tool-card" href="edit.html"><img src="https://img.icons8.com/color/96/edit-image.png"/><h2>Image Editor</h2><p>Edit your images with ease</p></a>
+    <a class="tool-card" href="background.html"><img src="https://img.icons8.com/color/96/erase.png"/><h2>Background Remover</h2><p>Erase image backgrounds</p></a>
+    <a class="tool-card" href="resize.html"><img src="https://img.icons8.com/color/96/resize.png"/><h2>Resize Image</h2><p>Resize images to custom sizes</p></a>
+    <a class="tool-card" href="meme.html"><img src="https://img.icons8.com/color/96/meme.png"/><h2>Meme Generator</h2><p>Create funny memes easily</p></a>
+    <a class="tool-card" href="avatar.html"><img src="https://img.icons8.com/color/96/avatar.png"/><h2>Avatar Creator</h2><p>Create your own avatars</p></a>
+    <a class="tool-card" href="ocr.html"><img src="https://img.icons8.com/color/96/ocr.png"/><h2>Image to Text (OCR)</h2><p>Extract text from images</p></a>
+    <a class="tool-card" href="blur.html"><img src="https://img.icons8.com/color/96/blur.png"/><h2>Image Blur</h2><p>Blur sensitive parts of images</p></a>
+    <a class="tool-card" href="sketch.html"><img src="https://img.icons8.com/color/96/sketch.png"/><h2>Sketch Converter</h2><p>Convert photo to sketch</p></a>
+    <a class="tool-card" href="colorize.html"><img src="https://img.icons8.com/color/96/paint-palette.png"/><h2>Colorize B&W</h2><p>Bring old B&W photos to life</p></a>
+    <a class="tool-card" href="faceswap.html"><img src="https://img.icons8.com/color/96/exchange.png"/><h2>Face Swap</h2><p>Swap faces in photos</p></a>
+    <a class="tool-card" href="qr.html"><img src="https://img.icons8.com/color/96/qr-code.png"/><h2>QR Code Generator</h2><p>Create custom QR codes</p></a>
+    <a class="tool-card" href="calculator.html"><img src="https://img.icons8.com/color/96/calculator.png"/><h2>Calculator</h2><p>Simple & advanced calculator</p></a>
+    <a class="tool-card" href="random.html"><img src="https://img.icons8.com/color/96/dice.png"/><h2>Random Generator</h2><p>Generate random values</p></a>
   </main>
 
   <footer>
@@ -228,27 +189,31 @@
   </footer>
 
   <script>
-    document.getElementById('menu-toggle').onclick = function () {
+    document.getElementById('menu-toggle').onclick = () => {
       const menu = document.getElementById('menu');
       menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
     };
 
+    document.getElementById('darkToggle').onclick = () => {
+      document.body.classList.toggle('dark');
+    };
+
     const tools = [
-      { name: 'compressor''img compress', link: '/Tools/compress.html' },
-      { name: 'enhancer''quality', link: 'quality.html' },
+      { name: 'compress', link: '/Tools/compress.html' },
+      { name: 'enhancer quality', link: 'quality.html' },
       { name: 'converter', link: 'img-format.html' },
       { name: 'age', link: 'age.html' },
       { name: 'cropper', link: 'texttoimg.html' },
       { name: 'editor', link: 'edit.html' },
-      { name: 'background', link: 'background.html' },
+      { name: 'background remover', link: 'background.html' },
       { name: 'resize', link: 'resize.html' },
       { name: 'meme', link: 'meme.html' },
       { name: 'avatar', link: 'avatar.html' },
-      { name: 'ocr', link: 'ocr.html' },
+      { name: 'ocr text', link: 'ocr.html' },
       { name: 'blur', link: 'blur.html' },
       { name: 'sketch', link: 'sketch.html' },
       { name: 'colorize', link: 'colorize.html' },
-      { name: 'faceswap', link: 'faceswap.html' },
+      { name: 'face swap', link: 'faceswap.html' },
       { name: 'qr', link: 'qr.html' },
       { name: 'calculator', link: 'calculator.html' },
       { name: 'random', link: 'random.html' }
@@ -257,7 +222,9 @@
     document.getElementById('searchBar').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         const query = this.value.toLowerCase().trim();
-        const found = tools.find(tool => tool.name.includes(query));
+        const found = tools.find(tool =>
+          query.split(' ').every(q => tool.name.includes(q))
+        );
         if (found) {
           window.location.href = found.link;
         } else {
@@ -266,5 +233,6 @@
       }
     });
   </script>
+
 </body>
 </html>
