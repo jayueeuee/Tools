@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Advanced responsive calculator tool by ToolsByJay - Perform accurate calculations with a high-quality UI/UX, SEO-optimized and AdSense ready.">
+  <title>Responsive Calculator | ToolsByJay</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.calculator {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.display {
+  background: #e6f0ff;
+  color: #000;
+  font-size: 2rem;
+  padding: 15px;
+  text-align: right;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+button {
+  font-size: 1.4rem;
+  padding: 20px;
+  border: none;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  transition: 0.2s;
+}
+
+button.operator {
+  background-color: #cce0ff;
+}
+
+button.equal {
+  background-color: #4d94ff;
+  color: white;
+}
+
+button:hover {
+  background-color: #d9d9d9;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Responsive Calculator</h1>
+    <p>By ToolsByJay - Perform Calculations Easily</p>
+  </header>  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="clearDisplay()">AC</button>
+      <button onclick="input('%')">%</button>
+      <button onclick="backspace()">←</button>
+      <button class="operator" onclick="input('/')">÷</button><button onclick="input('7')">7</button>
+  <button onclick="input('8')">8</button>
+  <button onclick="input('9')">9</button>
+  <button class="operator" onclick="input('*')">×</button>
+
+  <button onclick="input('4')">4</button>
+  <button onclick="input('5')">5</button>
+  <button onclick="input('6')">6</button>
+  <button class="operator" onclick="input('-')">−</button>
+
+  <button onclick="input('1')">1</button>
+  <button onclick="input('2')">2</button>
+  <button onclick="input('3')">3</button>
+  <button class="operator" onclick="input('+')">+</button>
+
+  <button onclick="input('0')">0</button>
+  <button onclick="input('.')">.</button>
+  <button class="equal" onclick="calculate()">=</button>
+</div>
+
+  </div>  <script>
+    let display = document.getElementById('display');
+    let expression = '';
+
+    function input(value) {
+      if (display.innerText === '0' && value !== '.') {
+        expression = value;
+      } else {
+        expression += value;
+      }
+      display.innerText = expression;
+    }
+
+    function clearDisplay() {
+      expression = '';
+      display.innerText = '0';
+    }
+
+    function backspace() {
+      expression = expression.slice(0, -1);
+      display.innerText = expression || '0';
+    }
+
+    function calculate() {
+      try {
+        const result = eval(expression);
+        display.innerText = result;
+        expression = result.toString();
+      } catch (error) {
+        display.innerText = 'Error';
+        expression = '';
+      }
+    }
+  </script></body>
+</html>
