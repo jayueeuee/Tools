@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Image Blur Tool (Single File)</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#14b8a6; --muted:#9aa7b2;
+  }
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:linear-gradient(180deg,#071025 0%, #071428 100%); color:#e6eef3; display:flex; min-height:100vh; align-items:flex-start; justify-content:center; padding:28px;}
+  .app{width:1100px; max-width:96vw; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius:12px; padding:18px; box-shadow:0 6px 30px rgba(2,6,23,0.7); display:grid; grid-template-columns: 1fr 340px; gap:14px;}
+  header{grid-column:1/-1; display:flex; gap:12px; align-items:center; margin-bottom:4px;}
+  header h1{font-size:18px; margin:0; font-weight:600;}
+  .left{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px; padding:12px; min-height:560px; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center;
+  }
+  .canvas-wrap{background:#071022; border-radius:8px; padding:6px; width:100%; display:flex; justify-content:center; align-items:center; flex:1; min-height:420px; box-sizing:border-box;}
+  canvas{max-width:100%; height:auto; border-radius:6px; background:#111827;}
+  .controls{display:flex; flex-direction:column; gap:8px;}
+  .panel{background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; box-sizing:border-box;}
+  label{font-size:13px; color:var(--muted); display:block; margin-bottom:6px;}
+  input[type="range"]{width:100%;}
+  input[type="file"]{display:none;}
+  .btn{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:8px; background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); cursor:pointer; color:var(--accent); font-weight:600;}
+  .btn.secondary{color:#b6c2c9; background:transparent; border:1px dashed rgba(255,255,255,0.02);}
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .tool-options{display:flex; gap:6px; flex-wrap:wrap;}
+  .small{font-size:13px; padding:6px 8px; border-radius:6px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); color:#cfe9e3;}
+  .muted{color:var(--muted); font-size:13px;}
+  .hint{font-size:12px; color:#7f8a90;}
+  footer{grid-column:1/-1; text-align:center; color:#8fa2ab; font-size:12px; margin-top:6px;}
+  .flex-between{display:flex; justify-content:space-between; align-items:center;}
+  input[type="number"]{width:72px;padding:6px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.03); color:#e8f3f0;}
+  .mode-toggle{display:flex; gap:6px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Interactive Blur Tool — single-file HTML</h1>
+    <div class="muted" style="margin-left:8px">Paint mask → blur selected area. Or invert to blur background.</div>
+  </header>
+
+  <div class="left panel">
+    <div class="canvas-wrap">
+      <!-- visible result canvas -->
+      <canvas id="resultCanvas"></canvas>
+    </div>
+
+    <div style="width:100%; display:flex; gap:8px; justify-content:space-between; margin-top:8px;">
+      <div class="row">
+        <label class="small btn" id="openFileBtn">Open Image
+          <input id="fileInput" type="file" accept="image/*">
+        </label>
+        <button class="small btn secondary" id="clearMaskBtn">Clear Mask</button>
+        <button class="small btn" id="invertMaskBtn">Invert Mask</button>
+      </div>
+
+      <div class="row">
+        <button class="small btn" id="blurWholeBtn">Blur Whole Image</button>
+        <button class="small btn secondary" id="downloadBtn">Download</button>
+      </div>
+    </div>
+
+    <div class="panel" style="width:100%; margin-top:8px;">
+      <div class="row" style="align-items:center; justify-content:space-between;">
+        <div>
+          <label class="muted">Brush size</label>
+          <input id="brushSize" type="range" min="4" max="150" value="36">
+        </div>
+        <div>
+          <label class="muted">Blur radius</label>
+          <input id="blurRadius" type="range" min="0" max="60" value="12">
+        </div>
+        <div>
+          <label class="muted">Feather (soften mask)</label>
+          <input id="feather" type="range" min="0" max="40" value="6">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <div class="mode-toggle">
+          <button id="paintBtn" class="small btn">Paint</button>
+          <button id="eraseBtn" class="small btn secondary">Erase</button>
+        </div>
+
+        <div class="tool-options">
+          <button id="autoColorBtn" class="small btn">Auto Mask by Color</button>
+          <label class="small btn secondary" id="pickColorBtn">Pick Color<input id="colorPickInput" type="color" style="display:none;"></label>
+        </div>
+
+        <div style="margin-left:auto">
+          <label class="muted">Invert when compositing</label>
+          <input id="invertCheckbox" type="checkbox">
+        </div>
+      </div>
+
+      <div style="margin-top:8px;" class="hint">Tip: Paint where you want blur (or erase). Use <strong>Invert</strong> to blur outside the painted area (background). Auto Mask tries to select same-color regions from a clicked point.</div>
+    </div>
+  </div>
+
+  <aside class="panel" style="display:flex; flex-direction:column; gap:10px;">
+    <div>
+      <label class="muted">Preview / Layers</label>
+      <div class="row" style="margin-top:6px;">
+        <button id="toggleMaskView" class="small btn secondary">Toggle Mask</button>
+        <button id="toggleOrig" class="small btn">Toggle Original</button>
+      </div>
+      <div class="hint" style="margin-top:8px">You can toggle to view the mask or original quickly (for precise painting).</div>
+    </div>
+
+    <div>
+      <label class="muted">Auto-mask options</label>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+        <label class="muted">Tolerance</label>
+        <input id="tolerance" type="range" min="0" max="200" value="50">
+        <span class="muted" id="tolVal">50</span>
+      </div>
+      <div class="hint" style="margin-top:6px">Click "Auto Mask by Color" then click on the image to pick the seed pixel; it will select similar colors.</div>
+    </div>
+
+    <div>
+      <label class="muted">Quick Presets</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+        <button class="small btn" data-r="6" data-b="26">Soft BG Blur</button>
+        <button class="small btn" data-r="18" data-b="8">Medium Blur</button>
+        <button class="small btn" data-r="36" data-b="14">Strong Blur</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="muted">About</label>
+      <div class="hint" style="margin-top:6px">This is a lightweight canvas-based blur tool (no server). It uses a JS stack blur implementation and mask compositing for selective blurs.</div>
+    </div>
+  </aside>
+
+  <footer>Made with ❤️ — Paint a mask, tune blur, then download.</footer>
+</div>
+
+<script>
+/* ============================
+   Utilities & DOM bindings
+   ============================ */
+const fileInput = document.getElementById('fileInput');
+const openFileBtn = document.getElementById('openFileBtn');
+const resultCanvas = document.getElementById('resultCanvas');
+const rctx = resultCanvas.getContext('2d', {alpha: true});
+const brushSizeEl = document.getElementById('brushSize');
+const blurRadiusEl = document.getElementById('blurRadius');
+const featherEl = document.getElementById('feather');
+const paintBtn = document.getElementById('paintBtn');
+const eraseBtn = document.getElementById('eraseBtn');
+const clearMaskBtn = document.getElementById('clearMaskBtn');
+const invertMaskBtn = document.getElementById('invertMaskBtn');
+const invertCheckbox = document.getElementById('invertCheckbox');
+const blurWholeBtn = document.getElementById('blurWholeBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const toggleMaskView = document.getElementById('toggleMaskView');
+const toggleOrig = document.getElementById('toggleOrig');
+const autoColorBtn = document.getElementById('autoColorBtn');
+const colorPickInput = document.getElementById('colorPickInput');
+const pickColorBtn = document.getElementById('pickColorBtn');
+const toleranceEl = document.getElementById('tolerance');
+const tolVal = document.getElementById('tolVal');
+const presets = document.querySelectorAll('[data-r]');
+
+let img = new Image();
+let imgLoaded = false;
+
+// create offscreen canvases
+const origCanvas = document.createElement('canvas');
+const origCtx = origCanvas.getContext('2d', {alpha:true});
+
+const blurredCanvas = document.createElement('canvas');
+const blurredCtx = blurredCanvas.getContext('2d', {alpha:true});
+
+// mask canvas (where user paints) — paint opaque white where mask exists
+const maskCanvas = document.createElement('canvas');
+const maskCtx = maskCanvas.getContext('2d', {alpha:true});
+
+// temp canvas for compositing
+const tempCanvas = document.createElement('canvas');
+const tempCtx = tempCanvas.getContext('2d', {alpha:true});
+
+let painting = false;
+let erasing = false;
+let last = null;
+let showMask = false;
+let showOrig = false;
+let autoColorMode = false;
+let selectedColor = '#ffffff';
+
+tolVal.textContent = toleranceEl.value;
+toleranceEl.addEventListener('input', ()=> tolVal.textContent = toleranceEl.value);
+
+/* --------------------------
+   StackBlur Implementation
+   (adapted small version)
+   Source: Mario Klingemann / StackBlur algorithm (public domain)
+   --------------------------- */
+function stackBlurCanvasRGBA(canvas, top_x, top_y, width, height, radius) {
+  // We'll use associated function that operates on ImageData
+  const ctx = canvas.getContext('2d');
+  if (isNaN(radius) || radius < 1) return;
+  radius |= 0;
+  let imageData = ctx.getImageData(top_x, top_y, width, height);
+  imageData = stackBlurImageDataRGBA(imageData, radius);
+  ctx.putImageData(imageData, top_x, top_y);
+}
+function stackBlurImageDataRGBA(imageData, radius) {
+  // for brevity use an efficient approximate gaussian via box blur stack method.
+  // We'll do three box blurs to approximate.
+  const w = imageData.width, h = imageData.height;
+  const pixels = imageData.data;
+  if (radius < 1) return imageData;
+  function boxBlur(pixels, w, h, r) {
+    const tmp = new Uint8ClampedArray(pixels.length);
+    const mul = 1 / (2*r+1);
+    // horizontal pass
+    for (let y=0; y<h; y++){
+      let idx = y*w*4;
+      // initial sum
+      let rsum=0, gsum=0, bsum=0, asum=0;
+      for (let i=-r;i<=r;i++){
+        let xi = Math.min(w-1, Math.max(0, i));
+        let p = (y*w + xi)*4;
+        rsum += pixels[p]; gsum += pixels[p+1]; bsum += pixels[p+2]; asum += pixels[p+3];
+      }
+      for (let x=0;x<w;x++){
+        let p = (y*w + x)*4;
+        tmp[p] = rsum*mul; tmp[p+1] = gsum*mul; tmp[p+2] = bsum*mul; tmp[p+3] = asum*mul;
+        // slide window
+        let i1 = x - r;
+        let i2 = x + r + 1;
+        if (i1 >= 0) { let pp=(y*w + i1)*4; rsum -= pixels[pp]; gsum -= pixels[pp+1]; bsum -= pixels[pp+2]; asum -= pixels[pp+3]; }
+        if (i2 < w) { let pp=(y*w + i2)*4; rsum += pixels[pp]; gsum += pixels[pp+1]; bsum += pixels[pp+2]; asum += pixels[pp+3]; }
+      }
+    }
+    // vertical pass
+    const out = new Uint8ClampedArray(pixels.length);
+    for (let x=0;x<w;x++){
+      let rsum=0, gsum=0, bsum=0, asum=0;
+      for (let i=-r;i<=r;i++){
+        let yi = Math.min(h-1, Math.max(0, i));
+        let p = (yi*w + x)*4;
+        rsum += tmp[p]; gsum += tmp[p+1]; bsum += tmp[p+2]; asum += tmp[p+3];
+      }
+      for (let y=0;y<h;y++){
+        let p = (y*w + x)*4;
+        out[p] = rsum*(1/(2*r+1)); out[p+1] = gsum*(1/(2*r+1)); out[p+2] = bsum*(1/(2*r+1)); out[p+3] = asum*(1/(2*r+1));
+        let i1 = y - r;
+        let i2 = y + r + 1;
+        if (i1 >= 0) { let pp=(i1*w + x)*4; rsum -= tmp[pp]; gsum -= tmp[pp+1]; bsum -= tmp[pp+2]; asum -= tmp[pp+3]; }
+        if (i2 < h) { let pp=(i2*w + x)*4; rsum += tmp[pp]; gsum += tmp[pp+1]; bsum += tmp[pp+2]; asum += tmp[pp+3]; }
+      }
+    }
+    return out;
+  }
+  // apply three box blurs of radius approximations for gaussian
+  const r = radius;
+  let blurred = pixels;
+  blurred = boxBlur(blurred, w, h, r|0);
+  blurred = boxBlur(blurred, w, h, r|0);
+  blurred = boxBlur(blurred, w, h, r|0);
+  imageData.data.set(blurred);
+  return imageData;
+}
+
+/* ============================
+   Image loading & canvas sizing
+   ============================ */
+function resizeCanvases(width, height) {
+  [origCanvas, blurredCanvas, maskCanvas, tempCanvas, resultCanvas].forEach(c=>{
+    c.width = width;
+    c.height = height;
+  });
+  // clear mask default transparent
+  maskCtx.clearRect(0,0,maskCanvas.width, maskCanvas.height);
+}
+fileInput.addEventListener('change', (e)=>{
+  if (!e.target.files || !e.target.files[0]) return;
+  const f = e.target.files[0];
+  const url = URL.createObjectURL(f);
+  img.onload = () => {
+    imgLoaded = true;
+    const maxW = 1000; // limit to keep UI responsive (scale down if huge)
+    let w = img.naturalWidth, h = img.naturalHeight;
+    if (w > maxW) { const scale = maxW / w; w = Math.round(w*scale); h = Math.round(h*scale); }
+    resizeCanvases(w,h);
+    // draw orig
+    origCtx.clearRect(0,0,w,h);
+    origCtx.drawImage(img,0,0,w,h);
+    // build blurred version (initial)
+    blurredCtx.clearRect(0,0,w,h);
+    blurredCtx.drawImage(img,0,0,w,h);
+    stackBlurCanvasRGBA(blurredCanvas,0,0,w,h, parseInt(blurRadiusEl.value));
+    drawResult();
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+});
+
+/* ============================
+   Painting mask (brush)
+   ============================ */
+function setModePaint() { painting=true; erasing=false; paintBtn.classList.remove('secondary'); paintBtn.classList.add('btn'); eraseBtn.classList.remove('btn'); eraseBtn.classList.add('secondary'); }
+function setModeErase() { painting=false; erasing=true; eraseBtn.classList.remove('secondary'); eraseBtn.classList.add('btn'); paintBtn.classList.remove('btn'); paintBtn.classList.add('secondary'); }
+paintBtn.addEventListener('click', ()=> setModePaint());
+eraseBtn.addEventListener('click', ()=> setModeErase());
+setModePaint();
+
+function paintAt(x,y, size, erase=false){
+  maskCtx.save();
+  maskCtx.beginPath();
+  if (erase) {
+    maskCtx.globalCompositeOperation = 'destination-out';
+    maskCtx.fillStyle = 'rgba(0,0,0,1)';
+  } else {
+    maskCtx.globalCompositeOperation = 'source-over';
+    maskCtx.fillStyle = 'rgba(255,255,255,1)'; // opaque white for mask
+  }
+  maskCtx.arc(x,y,size/2,0,Math.PI*2);
+  maskCtx.closePath();
+  maskCtx.fill();
+  maskCtx.restore();
+}
+
+resultCanvas.addEventListener('pointerdown', (e)=>{
+  if(!imgLoaded) return;
+  resultCanvas.setPointerCapture(e.pointerId);
+  const r = resultCanvas.getBoundingClientRect();
+  const sx = (e.clientX - r.left) * (resultCanvas.width / r.width);
+  const sy = (e.clientY - r.top) * (resultCanvas.height / r.height);
+  last = {x:sx, y:sy};
+  if (autoColorMode) {
+    autoMaskFromPoint(Math.round(sx), Math.round(sy), parseInt(toleranceEl.value));
+    autoColorMode = false;
+    resultCanvas.style.cursor = 'default';
+    return;
+  }
+  paintAt(sx, sy, parseInt(brushSizeEl.value), erasing);
+  drawResult();
+  resultCanvas.addEventListener('pointermove', onPointerMove);
+});
+
+function onPointerMove(e){
+  const r = resultCanvas.getBoundingClientRect();
+  const sx = (e.clientX - r.left) * (resultCanvas.width / r.width);
+  const sy = (e.clientY - r.top) * (resultCanvas.height / r.height);
+  const bs = parseInt(brushSizeEl.value);
+  // draw line between last and current as sequence of circles
+  const dx = sx - last.x, dy = sy - last.y;
+  const dist = Math.hypot(dx,dy);
+  const steps = Math.max(1, Math.floor(dist / (bs/4)));
+  for (let i=0;i<=steps;i++){
+    const t = i/steps;
+    const x = last.x + dx*t;
+    const y = last.y + dy*t;
+    paintAt(x,y, bs, erasing);
+  }
+  last = {x:sx, y:sy};
+  drawResult();
+}
+
+resultCanvas.addEventListener('pointerup', (e)=>{
+  resultCanvas.releasePointerCapture(e.pointerId);
+  resultCanvas.removeEventListener('pointermove', onPointerMove);
+});
+
+/* ============================
+   Compositing: draw result using mask + blur
+   ============================ */
+function applyFeatherToMask(feather) {
+  // soft blur the mask by drawing mask onto temp and running stack blur on temp
+  if (feather<=0) return;
+  tempCtx.clearRect(0,0,tempCanvas.width,tempCanvas.height);
+  tempCtx.drawImage(maskCanvas,0,0);
+  stackBlurCanvasRGBA(tempCanvas, 0,0, tempCanvas.width, tempCanvas.height, feather);
+  // copy back
+  maskCtx.clearRect(0,0,maskCanvas.width, maskCanvas.height);
+  maskCtx.drawImage(tempCanvas,0,0);
+}
+
+function drawResult(){
+  if (!imgLoaded) {
+    // clear
+    rctx.resetTransform();
+    rctx.clearRect(0,0,resultCanvas.width, resultCanvas.height);
+    rctx.font = "18px system-ui";
+    rctx.fillStyle = "#9fb0b6";
+    rctx.fillText("Open an image to start", 18, 40);
+    return;
+  }
+  // re-generate blurred image with current blur radius
+  blurredCtx.clearRect(0,0,blurredCanvas.width, blurredCanvas.height);
+  blurredCtx.drawImage(origCanvas,0,0);
+  const blurRadius = parseInt(blurRadiusEl.value);
+  if (blurRadius > 0) stackBlurCanvasRGBA(blurredCanvas, 0,0, blurredCanvas.width, blurredCanvas.height, blurRadius);
+
+  // copy mask to temp and optionally feather
+  tempCtx.clearRect(0,0, tempCanvas.width,tempCanvas.height);
+  tempCtx.drawImage(maskCanvas, 0,0);
+
+  const feather = parseInt(featherEl.value);
+  if (feather>0) {
+    // blur copy to smooth mask (non-destructive to original mask)
+    const tmp2 = document.createElement('canvas');
+    tmp2.width = maskCanvas.width; tmp2.height = maskCanvas.height;
+    const t2 = tmp2.getContext('2d');
+    t2.clearRect(0,0,tmp2.width,tmp2.height);
+    t2.drawImage(maskCanvas,0,0);
+    stackBlurCanvasRGBA(tmp2, 0,0, tmp2.width, tmp2.height, feather);
+    tempCtx.clearRect(0,0,tempCanvas.width,tempCanvas.height);
+    tempCtx.drawImage(tmp2,0,0);
+  }
+
+  // Now composite: tempCanvas has mask (white where selected)
+  // We want to draw blurred image only where mask is opaque (destination-in)
+  // Approach: draw blurredImage to another temp, then apply mask via globalCompositeOperation
+  const comp = document.createElement('canvas'); comp.width = resultCanvas.width; comp.height = resultCanvas.height;
+  const cctx = comp.getContext('2d', {alpha:true});
+  cctx.clearRect(0,0,comp.width,comp.height);
+  cctx.drawImage(blurredCanvas, 0,0);
+  cctx.globalCompositeOperation = invertCheckbox.checked ? 'destination-out' : 'destination-in';
+  cctx.drawImage(tempCanvas, 0,0);
+
+  // final result: draw original, then draw composited blurred part on top
+  rctx.clearRect(0,0,resultCanvas.width, resultCanvas.height);
+  rctx.drawImage(origCanvas, 0,0);
+  rctx.drawImage(comp, 0,0);
+
+  // if showMask: overlay mask in red semi-transparent for checking
+  if (showMask) {
+    rctx.save();
+    rctx.globalCompositeOperation = 'overlay';
+    rctx.fillStyle = 'rgba(220,50,50,0.28)';
+    rctx.drawImage(tempCanvas,0,0);
+    rctx.restore();
+  }
+  // if showOrig, just draw original and exit
+  if (showOrig) {
+    rctx.clearRect(0,0,resultCanvas.width, resultCanvas.height);
+    rctx.drawImage(origCanvas,0,0);
+  }
+}
+
+/* ============================
+   UI bindings
+   ============================ */
+clearMaskBtn.addEventListener('click', ()=>{
+  maskCtx.clearRect(0,0,maskCanvas.width, maskCanvas.height);
+  drawResult();
+});
+invertMaskBtn.addEventListener('click', ()=>{
+  // invert mask per-pixel
+  const md = maskCtx.getImageData(0,0,maskCanvas.width, maskCanvas.height);
+  for (let i=0;i<md.data.length;i+=4){
+    // grayscale value ~ r (we store white==255)
+    md.data[i] = 255 - md.data[i];
+    md.data[i+1] = 255 - md.data[i+1];
+    md.data[i+2] = 255 - md.data[i+2];
+    md.data[i+3] = 255 - md.data[i+3];
+  }
+  maskCtx.putImageData(md, 0,0);
+  drawResult();
+});
+blurRadiusEl.addEventListener('input', ()=> drawResult());
+featherEl.addEventListener('input', ()=> drawResult());
+brushSizeEl.addEventListener('input', ()=> { /* live cursor size could be implemented */ });
+
+blurWholeBtn.addEventListener('click', ()=>{
+  if (!imgLoaded) return;
+  // set mask full white and draw
+  maskCtx.fillStyle = 'rgba(255,255,255,1)';
+  maskCtx.fillRect(0,0,maskCanvas.width, maskCanvas.height);
+  drawResult();
+});
+
+downloadBtn.addEventListener('click', ()=>{
+  // prepare final canvas (drawResult already keeps resultCanvas)
+  drawResult();
+  const url = resultCanvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'blurred-image.png';
+  a.click();
+});
+
+toggleMaskView.addEventListener('click', ()=>{
+  showMask = !showMask;
+  drawResult();
+});
+toggleOrig.addEventListener('click', ()=>{
+  showOrig = !showOrig;
+  drawResult();
+});
+
+openFileBtn.addEventListener('click', ()=> fileInput.click());
+presets.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    blurRadiusEl.value = btn.dataset.r;
+    featherEl.value = btn.dataset.b;
+    drawResult();
+  });
+});
+
+/* ============================
+   Auto mask by color (simple)
+   Click "Auto Mask by Color", then click on canvas
+   ============================ */
+autoColorBtn.addEventListener('click', ()=>{
+  autoColorMode = true;
+  resultCanvas.style.cursor = 'crosshair';
+  alert('Auto mask: click on the image where the color to select is. Tolerance slider controls how wide the selection is.');
+});
+
+function autoMaskFromPoint(x,y, tolerance){
+  // get pixel color from origCanvas
+  const w = origCanvas.width, h = origCanvas.height;
+  const data = origCtx.getImageData(0,0,w,h);
+  const idx = (y*w + x)*4;
+  const sr = data.data[idx], sg = data.data[idx+1], sb = data.data[idx+2];
+  // create mask by thresholding color distance
+  const md = maskCtx.createImageData(w,h);
+  for (let j=0;j<w*h;j++){
+    const i = j*4;
+    const dr = data.data[i] - sr;
+    const dg = data.data[i+1] - sg;
+    const db = data.data[i+2] - sb;
+    const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+    if (dist <= tolerance) {
+      md.data[i]=255; md.data[i+1]=255; md.data[i+2]=255; md.data[i+3]=255;
+    } else {
+      md.data[i]=0; md.data[i+1]=0; md.data[i+2]=0; md.data[i+3]=0;
+    }
+  }
+  maskCtx.putImageData(md,0,0);
+  drawResult();
+}
+
+/* ============================
+   Color picker (for manual color selection and preview)
+   ============================ */
+pickColorBtn.addEventListener('click', ()=> colorPickInput.click());
+colorPickInput.addEventListener('input', (e)=>{
+  selectedColor = e.target.value;
+  // Optionally use this color as brush color for mask overlay - keep mask white actually
+});
+
+/* ============================
+   Resize canvas to window (keep size but fit CSS)
+   ============================ */
+window.addEventListener('resize', ()=>{
+  // keep CSS scaling only (canvas actual pixel size fixed by image resolution)
+});
+
+/* ============================
+   Initialize with a placeholder
+   ============================ */
+drawResult();
+
+/* ============================
+   Small UX: show pointer cursor modes
+   ============================ */
+resultCanvas.addEventListener('pointerenter', ()=> {
+  if (autoColorMode) resultCanvas.style.cursor='crosshair';
+  else resultCanvas.style.cursor = erasing ? 'crosshair' : 'crosshair';
+});
+</script>
+</body>
+</html>
