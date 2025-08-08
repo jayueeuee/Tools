@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login to ToolsByJ@y </title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #06b6d4;
+    --accent-hover: #0891b2;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  .login-card {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    width: 100%;
+    max-width: 380px;
+    animation: fadeIn 0.7s ease-out;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  h2 {
+    margin-top: 0;
+    font-weight: 600;
+    text-align: center;
+  }
+  .input-group {
+    margin-bottom: 1.4rem;
+  }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    color: var(--muted);
+  }
+  input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    background: #0f172a;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: border 0.3s ease;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(6,182,212,0.3);
+  }
+  .btn {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+    transition: background 0.3s ease;
+  }
+  .btn:hover {
+    background: var(--accent-hover);
+  }
+  .error {
+    color: #f87171;
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+    display: none;
+  }
+  .success {
+    color: #4ade80;
+    font-size: 0.9rem;
+    margin-top: 0.8rem;
+    text-align: center;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <h2>🔐 Secure Login</h2>
+  <div class="error" id="errorMsg">Invalid username or password</div>
+  <form id="loginForm">
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter username" required>
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password" required>
+    </div>
+    <button class="btn" type="submit">Login</button>
+  </form>
+  <div class="success" id="successMsg">✅ Login successful! Redirecting...</div>
+</div>
+
+<script>
+  const loginForm = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+  const successMsg = document.getElementById('successMsg');
+
+  loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (username === 'jay' && password === 'j@y') {
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = "index.html"; // Change to your page
+      }, 1500);
+    } else {
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
