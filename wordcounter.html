@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Counter</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; background: #f5f6fa; padding: 2rem; }
+    .card {
+      max-width: 500px; margin: auto; background: #fff;
+      padding: 2rem; border-radius: 14px; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    h2 { color: #4a90e2; margin-bottom: 1rem; }
+    textarea {
+      width: 100%; padding: 1rem; border: 1px solid #ddd;
+      border-radius: 8px; resize: vertical; min-height: 120px;
+      font-size: 1rem;
+    }
+    .stats { margin-top: 1rem; line-height: 1.8; }
+    b { color: #4a90e2; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>✍ Word Counter</h2>
+    <textarea id="text" placeholder="Type or paste text..."></textarea>
+    <div class="stats">
+      Words: <b id="words">0</b><br>
+      Characters (with spaces): <b id="charsWS">0</b><br>
+      Characters (no spaces): <b id="charsNS">0</b><br>
+      Sentences: <b id="sentences">0</b><br>
+      Paragraphs: <b id="paras">0</b><br>
+      Reading Time: <b id="time">~0 min</b>
+    </div>
+  </div>
+
+<script>
+const txt=document.getElementById("text");
+txt.oninput=()=>{
+  let t=txt.value.trim();
+  let words=(t.match(/\b[-'\w]+\b/g)||[]).length;
+  document.getElementById("words").textContent=words;
+  document.getElementById("charsWS").textContent=t.length;
+  document.getElementById("charsNS").textContent=t.replace(/\s+/g,"").length;
+  document.getElementById("sentences").textContent=(t.match(/[.!?]/g)||[]).length || (t?1:0);
+  document.getElementById("paras").textContent=t.split(/\n\s*\n/).filter(p=>p).length || (t?1:0);
+  document.getElementById("time").textContent="~"+Math.max(1,Math.ceil(words/200))+" min";
+};
+</script>
+</body>
+</html>
