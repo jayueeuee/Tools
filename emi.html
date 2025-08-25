@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMI Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .card {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0px 6px 16px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2d6cdf;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background: #2d6cdf;
+      color: #fff;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #1c4bb2;
+    }
+    .result-area {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f6ff;
+      border-left: 4px solid #2d6cdf;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>💳 EMI Calculator</h2>
+    <label for="loanAmount">Loan Amount (₹):</label>
+    <input type="number" id="loanAmount" placeholder="e.g., 100000" min="0">
+
+    <label for="interestRate">Annual Interest Rate (%):</label>
+    <input type="number" id="interestRate" placeholder="e.g., 10.5" min="0" step="0.01">
+
+    <label for="loanTenure">Loan Tenure (months):</label>
+    <input type="number" id="loanTenure" placeholder="e.g., 12" min="1">
+
+    <button id="calculateEmiBtn">Calculate EMI</button>
+    <div id="emiResult" class="result-area"></div>
+  </div>
+
+  <script>
+    const formatINR = (value) => value.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2
+    });
+
+    const amountInput = document.getElementById('loanAmount');
+    const rateInput = document.getElementById('interestRate');
+    const tenureInput = document.getElementById('loanTenure');
+    const calculateBtn = document.getElementById('calculateEmiBtn');
+    const resultDiv = document.getElementById('emiResult');
+
+    calculateBtn.onclick = () => {
+      const P = parseFloat(amountInput.value);
+      const annualRate = parseFloat(rateInput.value);
+      const N = parseInt(tenureInput.value);
+
+      if (isNaN(P) || isNaN(annualRate) || isNaN(N) || P <= 0 || annualRate < 0 || N <= 0) {
+        alert('❌ Please enter valid values.');
+        resultDiv.style.display = 'none';
+        return;
+      }
+
+      if (annualRate === 0) {
+        const EMI = P / N;
+        resultDiv.innerHTML = `
+          <strong>Monthly EMI:</strong> ${formatINR(EMI)}<br>
+          <strong>Total Interest:</strong> ${formatINR(0)}<br>
+          <strong>Total Payment:</strong> ${formatINR(P)}
+        `;
+        resultDiv.style.display = 'block';
+        return;
+      }
+
+      const r = annualRate / (12 * 100);
+      const EMI = (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+      const totalPayment = EMI * N;
+      const totalInterest = totalPayment - P;
+
+      resultDiv.innerHTML = `
+        <strong>Monthly EMI:</strong> ${formatINR(EMI)}<br>
+        <strong>Total Interest:</strong> ${formatINR(totalInterest)}<br>
+        <strong>Total Payment:</strong> ${formatINR(totalPayment)}
+      `;
+      resultDiv.style.display = 'block';
+    };
+  </script>
+</body>
+</html>
