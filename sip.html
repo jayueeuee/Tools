@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIP Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .card {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0px 6px 16px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2d6cdf;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background: #2d6cdf;
+      color: #fff;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #1c4bb2;
+    }
+    .result-area {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f6ff;
+      border-left: 4px solid #2d6cdf;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📈 SIP Calculator</h2>
+    <label for="monthlyInvestment">Monthly Investment (₹):</label>
+    <input type="number" id="monthlyInvestment" placeholder="e.g., 5000" min="0">
+
+    <label for="expectedReturnRate">Expected Annual Return Rate (%):</label>
+    <input type="number" id="expectedReturnRate" placeholder="e.g., 12" min="0" step="0.01">
+
+    <label for="investmentDuration">Investment Duration (years):</label>
+    <input type="number" id="investmentDuration" placeholder="e.g., 10" min="1">
+
+    <button id="calculateSipBtn">Calculate Future Value</button>
+    <div id="sipResult" class="result-area"></div>
+  </div>
+
+  <script>
+    const formatINR = (value) => value.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2
+    });
+
+    const monthlyInvestmentInput = document.getElementById('monthlyInvestment');
+    const returnRateInput = document.getElementById('expectedReturnRate');
+    const durationInput = document.getElementById('investmentDuration');
+    const calculateBtn = document.getElementById('calculateSipBtn');
+    const resultDiv = document.getElementById('sipResult');
+
+    calculateBtn.onclick = () => {
+      const P = parseFloat(monthlyInvestmentInput.value);
+      const annualRate = parseFloat(returnRateInput.value);
+      const t_years = parseInt(durationInput.value);
+
+      if (isNaN(P) || isNaN(annualRate) || isNaN(t_years) || P <= 0 || annualRate < 0 || t_years <= 0) {
+        alert('❌ Please enter valid values.');
+        resultDiv.style.display = 'none';
+        return;
+      }
+
+      const n = t_years * 12;
+      const i = annualRate / 12 / 100;
+      let M;
+
+      if (i === 0) {
+        M = P * n;
+      } else {
+        M = P * ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
+      }
+
+      const totalInvestment = P * n;
+      const wealthGained = M - totalInvestment;
+
+      resultDiv.innerHTML = `
+        <strong>Invested Amount:</strong> ${formatINR(totalInvestment)}<br>
+        <strong>Estimated Returns:</strong> ${formatINR(wealthGained)}<br>
+        <strong>Total Future Value:</strong> ${formatINR(M)}
+      `;
+      resultDiv.style.display = 'block';
+    };
+  </script>
+</body>
+</html>
